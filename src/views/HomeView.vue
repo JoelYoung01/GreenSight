@@ -5,12 +5,8 @@
     <h1>Home</h1>
     <p class="mb-6">Welcome to the Home page</p>
 
-    <v-card>
-      <v-card-title>About Page</v-card-title>
-      <v-card-text>The about page contains details about this app.</v-card-text>
-      <v-card-actions>
-        <v-btn variant="text" to="/about">Go to About Page</v-btn>
-      </v-card-actions>
-    </v-card>
+    <v-btn to="/report" color="primary" prepend-icon="mdi-chart-bar" size="large">
+      Build a Report
+    </v-btn>
   </v-container>
 </template>
