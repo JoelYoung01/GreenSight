@@ -4,21 +4,49 @@ import CostOverTime from "@/components/charts/CostOverTime.vue";
 import { processFile } from "@/lib/fileHelper";
 import { useUploadedDataStore } from "@/stores/uploadedData";
 
-const uploadedDataStore = useUploadedDataStore();
+const dataStore = useUploadedDataStore();
 
 const readingData = ref(false);
+const showAlert = ref(false);
 const viewMode = ref("table");
+
+const filteredData = computed(() => {
+  return (
+    dataStore.uploadedData?.map((item: any) => {
+      delete item.__parsed_extra;
+      return item;
+    }) ?? []
+  );
+});
+
+function handleResetData() {
+  dataStore.resetData();
+  showAlert.value = false;
+}
 
 async function handleFileUpload(file: File | File[]) {
   readingData.value = true;
-  uploadedDataStore.uploadedData = await processFile(file);
+  const result = await processFile(file);
+  dataStore.uploadedData = result.data;
+  dataStore.uploadDataErrors = result.errors;
   readingData.value = false;
+
+  if (result.errors.length > 0) {
+    showAlert.value = true;
+  }
 }
 </script>
 
 <template>
   <v-container>
-    <template v-if="!uploadedDataStore.uploadedData">
+    <v-alert v-model="showAlert" type="error" closable class="mb-4">
+      <span class="font-weight-bold">Error:</span> There were issues with the uploaded data:
+      <ul>
+        <li v-for="(error, index) in dataStore.uploadDataErrors" :key="index">{{ error }}</li>
+      </ul>
+    </v-alert>
+
+    <template v-if="!dataStore.uploadedData">
       <h1>Reporting</h1>
       <p class="mb-5">
         Upload some data to generate a report, or download the file template to get started.
@@ -33,7 +61,12 @@ async function handleFileUpload(file: File | File[]) {
         @update:model-value="handleFileUpload"
       />
 
-      <v-btn color="primary" :href="templateUrl" prepend-icon="mdi-download" download>
+      <v-btn
+        color="primary"
+        :href="templateUrl"
+        prepend-icon="mdi-download"
+        download="greensight-data-template.csv"
+      >
         Download Data Template
       </v-btn>
     </template>
@@ -46,15 +79,13 @@ async function handleFileUpload(file: File | File[]) {
 
         <v-spacer />
 
-        <v-btn color="secondary" @click="uploadedDataStore.uploadedData = null"> Clear Data </v-btn>
+        <v-btn color="secondary" @click="handleResetData"> Clear Data </v-btn>
       </div>
 
       <template v-if="viewMode === 'table'">
-        <v-data-table :items="uploadedDataStore.uploadedData" class="elevation-1">
+        <v-data-table :items="filteredData" class="elevation-1">
           <template #top>
-            <v-toolbar flat>
-              <v-toolbar-title>Uploaded Data</v-toolbar-title>
-            </v-toolbar>
+            <v-toolbar flat> <v-toolbar-title>Uploaded Data</v-toolbar-title> </v-toolbar>
           </template>
         </v-data-table>
       </template>
