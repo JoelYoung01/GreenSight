@@ -33,7 +33,12 @@ async function handleFileUpload(file: File | File[]) {
         @update:model-value="handleFileUpload"
       />
 
-      <v-btn color="primary" :href="templateUrl" prepend-icon="mdi-download" download>
+      <v-btn
+        color="primary"
+        :href="templateUrl"
+        prepend-icon="mdi-download"
+        download="download-template.csv"
+      >
         Download Data Template
       </v-btn>
     </template>
