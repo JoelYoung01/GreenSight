@@ -39,7 +39,7 @@ async function handleFileUpload(file: File | File[]) {
     </template>
     <template v-else>
       <div class="d-flex align-center">
-        <v-btn-toggle v-model="viewMode" color="primary" class="mb-4">
+        <v-btn-toggle v-model="viewMode" color="primary" class="mb-4" mandatory>
           <v-btn value="table">Tabular</v-btn>
           <v-btn value="chart">Chart</v-btn>
         </v-btn-toggle>
