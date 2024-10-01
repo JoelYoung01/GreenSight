@@ -2,12 +2,17 @@ import type UploadedDataItem from "@/types/UploadedData";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 
-export async function processFile(input: File | File[]): Promise<any> {
+interface FileProcessingResult {
+  data: UploadedDataItem[];
+  errors: string[];
+}
+
+export async function processFile(input: File | File[]): Promise<FileProcessingResult> {
   const file = Array.isArray(input) ? input[0] : input;
   const fileType = file.name.split(".").pop()?.toLowerCase();
 
   try {
-    let data;
+    let data: UploadedDataItem[] = [];
     if (fileType === "csv") {
       data = await parseCSV(file);
       console.debug("Parsed CSV data:", data);
@@ -20,9 +25,17 @@ export async function processFile(input: File | File[]): Promise<any> {
       console.error("Unsupported file type");
     }
 
-    return data;
+    const errors = validateData(data);
+
+    if (errors.length) {
+      console.error("Validation errors:", errors);
+    }
+
+    return { data, errors };
   } catch (error) {
-    console.error("Error parsing file:", error);
+    const msg = "Error parsing file: " + (error instanceof Error ? error.message : `${error}`);
+    console.error(msg);
+    return { data: [], errors: [msg] };
   }
 }
 
@@ -85,4 +98,24 @@ function parseExcel(file: File): Promise<UploadedDataItem[]> {
     };
     reader.readAsArrayBuffer(file);
   });
+}
+
+function validateData(data?: UploadedDataItem[]): string[] {
+  const errors: string[] = [];
+
+  if (!data || !data.length) {
+    errors.push("No data found");
+    return errors;
+  }
+
+  const requiredKeys: (keyof UploadedDataItem)[] = ["dateSold", "sellPrice"];
+  data.forEach((item, index) => {
+    requiredKeys.forEach((key) => {
+      if (!item[key]) {
+        errors.push(`Missing required field "${key}" in row ${index + 1}`);
+      }
+    });
+  });
+
+  return errors;
 }

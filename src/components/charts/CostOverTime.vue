@@ -27,14 +27,25 @@ const chartData = computed(() => {
     };
   }
 
-  const sortedData = uploadedDataStore.uploadedData.toSorted((a, b) =>
-    a.dateSold.localeCompare(b.dateSold)
-  );
-  const startDate = new Date(sortedData[0].dateSold);
-  const endDate = new Date(sortedData[sortedData.length - 1].dateSold);
+  const sortedData = uploadedDataStore.uploadedData.toSorted((a, b) => {
+    if (!a.dateSold || !b.dateSold) {
+      return 0;
+    }
+
+    return new Date(a.dateSold).getTime() - new Date(b.dateSold).getTime();
+  });
+
+  // Set the start and end date based on the first and last records to contain the dateSold field
+  const startDate = new Date(sortedData.find((d) => d.dateSold)?.dateSold ?? new Date());
+  const endDate = new Date(sortedData.toReversed().find((d) => d.dateSold)?.dateSold ?? new Date());
 
   const data: Record<string, { revenue: number }> = sortedData.reduce(
     (acc, curr) => {
+      // if either dateSold or sellPrice is missing, skip this record
+      if (!curr.dateSold || !curr.sellPrice) {
+        return acc;
+      }
+
       const date = new Date(curr.dateSold);
       const revenue = Number(curr.sellPrice);
 
