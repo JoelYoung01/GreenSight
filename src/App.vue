@@ -8,11 +8,13 @@ const title = import.meta.env.VITE_APP_TITLE;
   <v-app>
     <v-app-bar dense color="primary" :elevation="2">
       <v-app-bar-title>
-        <RouterLink class="text-decoration-none text-white" to="/">{{ title }}</RouterLink>
+        <RouterLink class="text-decoration-none text-white" to="/">
+          <v-icon start>mdi-leaf</v-icon>{{ title }}
+        </RouterLink>
       </v-app-bar-title>
 
-      <v-btn variant="text" prepend-icon="mdi-home" to="/">Home</v-btn>
-      <v-btn variant="text" prepend-icon="mdi-information" to="/about">About</v-btn>
+      <v-btn variant="text" prepend-icon="mdi-home" to="/">Dashboard</v-btn>
+      <v-btn variant="text" prepend-icon="mdi-chart-box-outline" to="/report">Reporting</v-btn>
     </v-app-bar>
 
     <v-main>

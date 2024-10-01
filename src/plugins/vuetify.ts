@@ -9,6 +9,7 @@ const MainTheme: ThemeDefinition = {
   dark: false,
   colors: {
     // Add color overrides here
+    primary: "#4CAF50"
   },
   variables: {
     // Add variable overrides here
